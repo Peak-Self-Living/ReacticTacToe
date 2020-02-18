@@ -1,8 +1,9 @@
 import React from 'react';
 
 interface SquareProps {
+    squareNumber: number,
     value: string,
-    onSquareClick: (ev: React.MouseEvent<HTMLButtonElement>) => void
+    onSquareClick?: (ev: React.MouseEvent<HTMLButtonElement>) => void
 }
 interface SquareState {
     value: string
@@ -17,7 +18,7 @@ class Square extends React.Component<SquareProps, SquareState> {
     }
     render() {
         return (
-            <button className="square" onClick={this.props.onSquareClick}>
+            <button className="square" value={this.props.squareNumber} onClick={this.props.onSquareClick}>
                 {this.props.value}
             </button>
         );

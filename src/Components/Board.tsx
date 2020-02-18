@@ -1,8 +1,8 @@
-import React from 'react';
-import Square from './Square';
+import React from "react";
+import Square from "./Square";
 
 interface BoardProps {
-    onSquareClick: (ev: React.MouseEvent<HTMLButtonElement>) => void,
+    onSquareClick?: (ev: React.MouseEvent<HTMLButtonElement>) => void,
     squares: Array<string>
 }
 interface BoardState {
@@ -13,13 +13,12 @@ interface BoardState {
 class Board extends React.Component<BoardProps, BoardState> {
     
     renderSquare(i: number) {
-        return <Square value={this.props.squares[i]} onSquareClick={this.props.onSquareClick} />
+        return <Square squareNumber={i} value={this.props.squares[i]} onSquareClick={this.props.onSquareClick} />
     }
 
     render() {
         return(
             <div>
-              <div className="status">{status}</div>
               <div className="board-row">
                 {this.renderSquare(0)}
                 {this.renderSquare(1)}

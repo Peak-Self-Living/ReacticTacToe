@@ -1,39 +1,53 @@
-import React from 'react';
-import Board from './Board';
-import BoardValues from './BoardValues';
+import React from "react";
+import Board from "./Board";
+import BoardValues from "./BoardValues";
 
 interface GameState {
-    history: Array<BoardValues>,
-    moves: string,
-    status: string,
-    xIsNext: boolean
+  currentSquares: Array<string>,
+  currentViewingQuareNumber: number,
+  history: Array<BoardValues>,
+  isViewingCurrentMove: boolean,
+  moves: number,
+  status: string,
+  showNavigationControls: boolean,
+  xIsNext: boolean
 }
 
 class Game extends React.Component<{}, GameState> {
     constructor(props: {}) {
         super(props);
         this.state = {
-            history: [{
-                squares: Array(9).fill('')
-              }],
-            xIsNext: true
+          currentSquares: [],
+          currentViewingQuareNumber: 1,
+          history: [{
+              squares: Array(9).fill("")
+            }],
+          isViewingCurrentMove: true,
+          moves: 0,
+          showNavigationControls: false,
+          status: "",
+          xIsNext: true
         }
     }
     
-    handleSquareClick(i: number) {
-        const history = this.state.history;
-        const current = history[history.length - 1];
-        const squares = current.squares.slice();
-        if (this.calculateWinner(squares) || squares[i]) {
-          return;
-        }
-        squares[i] = this.state.xIsNext ? 'X' : 'O';
-        this.setState({
-          history: history.concat([{
-            squares: squares,
-          }]),
-          xIsNext: !this.state.xIsNext,
-        });
+    handleSquareClick(ev: React.MouseEvent<HTMLButtonElement>) {
+      const i = Number(ev.currentTarget.value);
+      const history = this.state.history;
+      const current = history[history.length - 1];
+      const squares = current.squares.slice();
+      if (this.calculateWinner(squares) || squares[i]) {
+        return;
+      }
+      squares[i] = this.state.xIsNext ? "X" : "O";
+      this.setState({
+        history: history.concat([{
+          squares: squares,
+        }]),
+        isViewingCurrentMove: true,
+        moves: this.state.moves + 1,
+        showNavigationControls: true,
+        xIsNext: !this.state.xIsNext,
+      });
     }
     
     calculateWinner(squares: Array<string>) {
@@ -55,28 +69,65 @@ class Game extends React.Component<{}, GameState> {
         }
         return null;
     }
+    goBackOneMove() {
+      const squares = this.state.history[this.state.currentViewingQuareNumber - 1].squares.slice();
+      this.setState({
+        currentSquares: squares,
+        isViewingCurrentMove: false,
+      });
+    }
+
+    goForwardOneMove() {
+      const squares = this.state.history[this.state.currentViewingQuareNumber + 1].squares.slice();
+      this.setState({
+        currentSquares: squares,
+        isViewingCurrentMove: false,
+      });
+    }
+
+    goToCurrentMove() {
+      const squares = this.state.history[this.state.moves - 1].squares.slice();
+      this.setState({
+        currentSquares: squares,
+        isViewingCurrentMove: true,
+      });
+    }
+
     render() {
         const history = this.state.history;
         const current = history[history.length - 1];
         const winner = this.calculateWinner(current.squares);
-    
-        let status;
+        let status = "";
         if (winner) {
-          status = 'Winner: ' + winner;
+          status = "Winner: " + winner;
         } else {
-          status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+          status = "Next player: " + (this.state.xIsNext ? "X" : "O");
         }
         return (
           <div className="game">
             <div className="game-board">
-          <Board
-            squares={current.squares}
-            onSquareClick={(i) => this.handleSquareClick(i)}
-          />
+              <Board
+                squares={current.squares}
+                onSquareClick={(ev) => this.handleSquareClick(ev)}
+              />
             </div>
             <div className="game-info">
-              <div>{this.state.status}</div>
-              <ol>{this.state.moves}</ol>
+              <div className="game-status">{status}</div>
+              <div className="number-of-moves">Number of moves: {this.state.moves}</div>
+              {this.state.showNavigationControls &&
+                <div className="navigation-controls">  
+                  <h4>See current and past moves</h4>                
+                  <button className="nav-button" id="btnPreviousMove" onClick={this.goBackOneMove} disabled={this.state.moves < 2}>
+                      Previous Move
+                  </button>                
+                  <button className="nav-button" id="btnNextMove" onClick={this.goForwardOneMove} disabled={this.state.isViewingCurrentMove}>
+                      Next Move
+                  </button>            
+                  <button className="nav-button" id="btnCurrentMove" onClick={this.goToCurrentMove} disabled={this.state.isViewingCurrentMove}>
+                      Current Move
+                  </button>
+                </div>
+              }
             </div>
           </div>
         );
