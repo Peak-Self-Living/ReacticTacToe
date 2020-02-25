@@ -1,6 +1,7 @@
 import React from "react";
 import Board from "./Board";
 import BoardValues from "./BoardValues";
+import Button from '@material-ui/core/Button';
 
 interface GameState {
   currentSquares: Array<string>,
@@ -69,7 +70,7 @@ class Game extends React.Component<{}, GameState> {
         }
         return null;
     }
-    goBackOneMove() {
+    goBackOneMove(ev: React.MouseEvent<HTMLButtonElement>) {
       const squares = this.state.history[this.state.currentViewingQuareNumber - 1].squares.slice();
       this.setState({
         currentSquares: squares,
@@ -77,7 +78,7 @@ class Game extends React.Component<{}, GameState> {
       });
     }
 
-    goForwardOneMove() {
+    goForwardOneMove(ev: React.MouseEvent<HTMLButtonElement>) {
       const squares = this.state.history[this.state.currentViewingQuareNumber + 1].squares.slice();
       this.setState({
         currentSquares: squares,
@@ -85,11 +86,37 @@ class Game extends React.Component<{}, GameState> {
       });
     }
 
-    goToCurrentMove() {
+    goToCurrentMove(ev: React.MouseEvent<HTMLButtonElement>) {
       const squares = this.state.history[this.state.moves - 1].squares.slice();
       this.setState({
         currentSquares: squares,
         isViewingCurrentMove: true,
+      });
+    }
+    newGame(ev: React.MouseEvent<HTMLButtonElement>) {
+      this.setState({
+        currentSquares: [],
+        currentViewingQuareNumber: 1,
+        history: [{
+            squares: Array(9).fill("")
+          }],
+        isViewingCurrentMove: true,
+        moves: 0,
+        showNavigationControls: false,
+        status: "",
+        xIsNext: true
+      });
+    }
+    quitGame(ev: React.MouseEvent<HTMLButtonElement>) {
+      this.setState({
+        currentSquares: Array(9).fill(""),
+        currentViewingQuareNumber: 0,
+        history: {} as BoardValues[],
+        isViewingCurrentMove: false,
+        moves: 0,
+        status: "quit game",
+        showNavigationControls: false,
+        xIsNext: false
       });
     }
 
@@ -115,19 +142,32 @@ class Game extends React.Component<{}, GameState> {
               <div className="game-status">{status}</div>
               <div className="number-of-moves">Number of moves: {this.state.moves}</div>
               {this.state.showNavigationControls &&
-                <div className="navigation-controls">  
-                  <h4>See current and past moves</h4>                
-                  <button className="nav-button" id="btnPreviousMove" onClick={this.goBackOneMove} disabled={this.state.moves < 2}>
-                      Previous Move
-                  </button>                
-                  <button className="nav-button" id="btnNextMove" onClick={this.goForwardOneMove} disabled={this.state.isViewingCurrentMove}>
-                      Next Move
-                  </button>            
-                  <button className="nav-button" id="btnCurrentMove" onClick={this.goToCurrentMove} disabled={this.state.isViewingCurrentMove}>
-                      Current Move
-                  </button>
+                <div className="navigation-controls"> 
+                  <fieldset>
+                    <legend>Move History</legend>              
+                    <Button className="nav-button" id="btnPreviousMove" onClick={this.goBackOneMove} disabled={this.state.moves < 2}>
+                      &lt;&lt;
+                    </Button>                
+                    <Button className="nav-button" id="btnNextMove" onClick={this.goForwardOneMove} disabled={this.state.isViewingCurrentMove}>
+                        &gt;&gt;
+                    </Button>            
+                    <Button className="nav-button" id="btnCurrentMove" onClick={this.goToCurrentMove} disabled={this.state.isViewingCurrentMove}>
+                        Current
+                    </Button>
+                  </fieldset> 
                 </div>
-              }
+              }        
+              <div className="game-controls"> 
+                <fieldset>
+                  <legend>Game controls</legend>              
+                  <Button className="game-button" id="btnNewGame" onClick={this.newGame} disabled={this.state.moves == 0}>
+                      New
+                  </Button>                
+                  <Button className="game-button" id="btnNextMove" onClick={this.quitGame} disabled={this.state.moves == 0}>
+                      Quit
+                  </Button>   
+                </fieldset> 
+              </div>
             </div>
           </div>
         );
@@ -135,5 +175,3 @@ class Game extends React.Component<{}, GameState> {
 }
 
 export default Game;
-
-//https://reactjs.org/tutorial/tutorial.html
